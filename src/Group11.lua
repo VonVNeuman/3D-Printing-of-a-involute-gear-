@@ -9,14 +9,14 @@
 ---Reference
 -- [1]: Zhai, Guodong & Liang, Zhihao & Fu, Zihao. (2020). A Mathematical Model for Parametric Tooth Profile of Spur Gears. Mathematical Problems in Engineering. 2020.
 
----[2]: HANDBOOK OF DUDLEY’S. Practical gear design and manufacture.
+---[2]: HANDBOOK OF DUDLEYâ€™S. Practical gear design and manufacture.
 
 ---[3]: J I Pedrero, M Artes, C Garcia-Masia (2004). Determination of the effective path of contact of undercut involute gear teeth.Institution of Mechanical Engineers Part C Journal of Mechanical Engineering Science 1989-1996 (vols 203-210) 218(7):751-760 
 
-no_of_teeth=ui_number("Number Of Teeth",16,14,25);				
+no_of_teeth=ui_number("Number Of Teeth",10,10,25);				
 module_gear=ui_number("Module",3,2,25);			
 pressure_angle=ui_scalar("Pressure Angle",20,20,25);			
-width=ui_scalar("Face Width",15,5,20);			
+width=ui_scalar("Face Width",5,2,20);			
 rotation = ui_numberBox ("Rotation of gear",0)*2;				 
 f_r=ui_number("Fillet radius", 2,0,3)profile_shift=ui_scalar("Profile Shift Factor",0,-0.3,1);	
       --- Function to obtain Input parameters 
@@ -154,6 +154,9 @@ end
 		  involute_xy[#involute_xy + 1] =Rotation(th*m/z,Rotation(tooth_ang, Mirror(involutecurve(r_b,(start_angle +(stop_angle -start_angle) *i / resl)))))	-- mirrored   involute                                         
         
          end 
+for i = resl, 1, -1 do
+            involute_xy[#involute_xy + 1] =Rotation(th*m/z,Rotation(tooth_ang,Mirror(circle(center_f[1].x,center_f[1].y, f_r,(slope_c + (slope_a- slope_c) *i / resl)))))        -- mirrored fillet                                          
+        end
     end
 
 
@@ -253,7 +256,7 @@ inv_a = math.tan(alpha_t) - alpha_t;---involute function
 	center_d= (module_gear*(z_1+z_2)/2)*(math.cos(alpha_t)/math.cos(alpha_w))	-- Center distance: Gears using working pressure angle
 
 
-addOn_distance= module_gear * 2;
+addOn_distance= z_1/4;
 
 
 function pinion() -- function to generate pinion
@@ -263,6 +266,7 @@ end
 pinion()  -- Calling of the function
 
 function gear1() --Function to generate gear shape
+
 	ext_gr2 = gear({z=no_of_teeth+5;m_t=module_gear;alpha_t=pressure_angle*math.pi/180;c=clearance;width=width;x_coef=profile_shift;f_r=f_r})
 end
 
@@ -273,9 +277,9 @@ rotation3 = rotate(0,0,angle*90/math.pi)
 rotation4 = rotate(0,0,(angle*90/math.pi))
 if (z_2%2==0)
 then
-rotation42 = rotate(0,0, ((angle*90/math.pi)+z_1/z_2))
+rotation42 = rotate(0,0, ((angle*90/math.pi)+z_1/z_2)+1-z_2/12)
 else 
-rotation42 = rotate(0,0, ((angle*90/math.pi))+180/z_1+1)
+rotation42 = rotate(0,0, ((angle*90/math.pi))+180/z_1)
 end
 
  --- Formation of gear and pinion
@@ -284,11 +288,11 @@ r3 = rotate(0,0,-rotation*z_2/z_1)
 
              -----------------------
 
-bore_pinion=extrude(circle_t(addOn_distance),0,v(0,0,width), v(1,1,1),20)	-- Bore formation of pinion
+bore_pinion=extrude(circle_t(addOn_distance),0,v(0,0,10000), v(1,1,1),20)	-- Bore formation of pinion
 bore_diff=bore_pinion
 bore_full=difference(ext_gr,bore_diff)
 
-bore_gear=extrude(circle_t(addOn_distance*1.5),0,v(0,0,width), v(1,1,1),20)	-- Bore formation of external gear
+bore_gear=extrude(circle_t(addOn_distance*1.5),0,v(0,0,10000), v(1,1,1),20)	-- Bore formation of external gear
 bore_diff2=bore_gear
 bore_full2=difference(ext_gr2,bore_diff2)
              -----------------------
